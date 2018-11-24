@@ -1,0 +1,187 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   University of Central Florida
+%   CAP4630 Artificial Intelligence
+%   Author:  John Hacker
+%
+%   Blocks world planner for two rooms
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- module( planner,
+	   [
+	       plan/4,change_state/3,conditions_met/2,member_state/2,
+	       move/3,go/2,test1/0,test2/0
+	   ]).
+
+:- [utils].
+
+plan(State, Goal, _, Moves) :-	equal_set(State, Goal),
+				write('moves are'), nl,
+				reverse_print_stack(Moves).
+plan(State, Goal, Been_list, Moves) :-
+				move(Name, Preconditions, Actions),
+				conditions_met(Preconditions, State),
+				change_state(State, Actions, Child_state),
+				not(member_state(Child_state, Been_list)),
+				stack(Child_state, Been_list, New_been_list),
+				stack(Name, Moves, New_moves),
+			plan(Child_state, Goal, New_been_list, New_moves),!.
+
+change_state(S, [], S).
+change_state(S, [add(P)|T], S_new) :-	change_state(S, T, S2),
+					add_to_set(P, S2, S_new), !.
+change_state(S, [del(P)|T], S_new) :-	change_state(S, T, S2),
+					remove_from_set(P, S2, S_new), !.
+conditions_met(P, S) :- subset(P, S).
+
+member_state(S, [H|_]) :-	equal_set(S, H).
+member_state(S, [_|T]) :-	member_state(S, T).
+
+/* move types */
+
+move(pickup(X), [handempty, handin_1, clear(X), on_1(X, Y)],
+		[del(handempty), del(clear(X)), del(on_1(X, Y)), add(clear(Y)),	add(holding(X))]).
+
+move(pickup(X), [handempty, handin_1, clear(X), ontable_1(X)],
+		[del(handempty), del(clear(X)), del(ontable_1(X)), add(holding(X))]).
+
+move(pickup(X), [handempty, handin_2, clear(X), on_2(X, Y)],
+		[del(handempty), del(clear(X)), del(on_2(X, Y)), add(clear(Y)),	add(holding(X))]).
+
+move(pickup(X), [handempty, handin_2, clear(X), ontable_2(X)],
+		[del(handempty), del(clear(X)), del(ontable_2(X)), add(holding(X))]).
+
+move(putdown(X), [holding(X), handin_1],
+		 [del(holding(X)), add(ontable_1(X)), add(clear(X)), add(handempty)]).
+
+move(putdown(X), [holding(X), handin_2],
+		 [del(holding(X)), add(ontable_2(X)), add(clear(X)), add(handempty)]).
+
+move(stack(X, Y), [holding(X), clear(Y), ontable_1(Y), handin_1],
+		  [del(holding(X)), del(clear(Y)), add(handempty), add(on_1(X, Y)), add(clear(X))]).
+
+move(stack(X, Y), [holding(X), clear(Y), on_1(Y, _), handin_1],
+		  [del(holding(X)), del(clear(Y)), add(handempty), add(on_1(X, Y)), add(clear(X))]).
+
+move(stack(X, Y), [holding(X), clear(Y), ontable_2(Y), handin_2],
+		  [del(holding(X)), del(clear(Y)), add(handempty), add(on_2(X, Y)), add(clear(X))]).
+
+move(stack(X, Y), [holding(X), clear(Y), on_2(Y, _), handin_2],
+		  [del(holding(X)), del(clear(Y)), add(handempty), add(on_2(X, Y)), add(clear(X))]).
+
+move(goroom1, [handin_2],
+	      [del(handin_2), add(handin_1)]).
+
+move(goroom2, [handin_1],
+	      [del(handin_1), add(handin_2)]).
+
+/* run commands */
+
+go(S, G) :- plan(S, G, [S], []).
+
+test1 :- go([handempty, ontable_1(b), ontable_1(c), on_1(a, b), clear(c), clear(a), handin_1],
+	    [handempty, ontable_1(c), on_1(b, c), on_1(a, b), clear(a), handin_1]).
+
+test2 :- go([handempty, ontable_1(b), ontable_1(c), on_1(a, b), clear(c), clear(a), handin_1],
+	    [handempty, ontable_2(b), on_2(c, b), on_2(a, c), clear(a), handin_1]).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
